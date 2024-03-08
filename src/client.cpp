@@ -24,5 +24,11 @@ int main(){
         std::cout << "Successfully created client-side socket!" << std::endl;
     }
 
+    SOCKADDR_IN serverAddr{AF_INET,
+                           htons(2468),
+                           static_cast<u_char>(inet_addr("127.0.0.1"))};
+
+
+
     return 0;
 }
