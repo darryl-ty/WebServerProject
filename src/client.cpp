@@ -27,7 +27,6 @@ int main(){
     SOCKADDR_IN serverAddr{AF_INET,
                            htons(2468),
                            static_cast<u_char>(inet_addr("127.0.0.1"))};
-
     int result = connect(clientSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr));
     if (result == SOCKET_ERROR){
         std::cerr << "Unable to connect to server. Following error: " << WSAGetLastError() << std::endl;
