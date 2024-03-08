@@ -16,7 +16,13 @@ int main(){
     }
 
     SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-
+    if (clientSocket == INVALID_SOCKET){
+        std::cout << "Unable to create socket. Following error: " << WSAGetLastError() << std::endl;
+        WSACleanup();
+        return 1;
+    } else {
+        std::cout << "Successfully created client-side socket!" << std::endl;
+    }
 
     return 0;
 }
