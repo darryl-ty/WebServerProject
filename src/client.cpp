@@ -1,8 +1,22 @@
 #include <winsock2.h>
 #include "client.h"
 
+SOCKET createSocket(const char* serverAddr, int portNum);
 
 int main(){
+    const char* serverAddr = "127.0.0.1";
+    int portNum = 2468;
+
+    SOCKET client = createSocket(serverAddr, portNum);
+
+
+    closesocket(client);
+    WSACleanup();
+
+    return 0;
+}
+
+SOCKET createSocket(const char* serverAddr, int portNum){
     WSAData wsaData;
     int wsaerr;
     WORD wVersion = MAKEWORD(2, 2);
@@ -24,10 +38,10 @@ int main(){
         std::clog << "Successfully created client-side socket!" << std::endl;
     }
 
-    SOCKADDR_IN serverAddr{AF_INET,
-                           htons(2468),
-                           static_cast<u_char>(inet_addr("127.0.0.1"))};
-    int result = connect(clientSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr));
+    SOCKADDR_IN server{AF_INET,
+                           htons(portNum),
+                           static_cast<u_char>(inet_addr(serverAddr))};
+    int result = connect(clientSocket, (SOCKADDR*)&server, sizeof(server));
     if (result == SOCKET_ERROR){
         std::cerr << "Unable to connect to server. Following error: " << WSAGetLastError() << std::endl;
         WSACleanup();
@@ -36,7 +50,5 @@ int main(){
         std::clog << "Connection to server established!" << std::endl;
     }
 
-
-
-    return 0;
+    return clientSocket;
 }
