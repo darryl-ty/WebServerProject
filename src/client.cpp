@@ -1,19 +1,48 @@
 #include <winsock2.h>
+#include <string>
 #include "client.h"
 
 SOCKET createSocket(const char* serverAddr, int portNum);
+void sendFileName(SOCKET client);
+char* receiveFile(SOCKET client);
 
 int main(){
     const char* serverAddr = "127.0.0.1";
-    int portNum = 2468;
+    const int portNum = 2468;
 
     SOCKET client = createSocket(serverAddr, portNum);
+    sendFileName(client);
+    receiveFile(client);
 
 
     closesocket(client);
     WSACleanup();
 
     return 0;
+}
+
+char* receiveFile(SOCKET client){
+    char* dataBuffer;
+    int dataSize;
+
+    int result = recv(client, dataBuffer, dataSize, 0);
+
+}
+
+void sendFileName(SOCKET client){
+    char* fileName;
+
+    std::cout << "Please enter the name of the file you'd like to get:" << std::endl;
+    std::cin >> fileName;
+
+    int result = send(client, fileName, strlen(fileName), 0);
+    if (result == SOCKET_ERROR){
+        std::cerr << "Unable to send information to server. Following error: " << WSAGetLastError() << std::endl;
+    } else {
+        std::clog << "User requested " << fileName << " from server. Waiting for response..." << std::endl;
+    }
+
+
 }
 
 SOCKET createSocket(const char* serverAddr, int portNum){
