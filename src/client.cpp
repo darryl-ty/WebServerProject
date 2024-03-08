@@ -26,6 +26,12 @@ char* receiveFile(SOCKET client){
     int dataSize;
 
     int result = recv(client, dataBuffer, dataSize, 0);
+    if (result == SOCKET_ERROR){
+        std::cerr << "Unable to receive information from server. Following error: " << WSAGetLastError() << std::endl;
+    } else {
+        std::clog << "User received the requested file from server!" << std::endl;
+        return dataBuffer;
+    }
 
 }
 
