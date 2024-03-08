@@ -1,4 +1,4 @@
-
+#include <winsock2.h>
 #include "server.h"
 
 int main(){
@@ -8,10 +8,10 @@ int main(){
     wsaerr = WSAStartup(wVersion, &wsaData);
 
     if (wsaerr != 0) {
-        std::cout << "Windows Socket was unable to initialize." << std::endl;
+        std::cerr << "Windows Socket was unable to initialize." << std::endl;
         return 0;
     } else {
-        std::cout << "Windows Socket was successfully initialized with status: " << wsaData.szSystemStatus << std::endl;
+        std::clog << "Windows Socket was successfully initialized with status: " << wsaData.szSystemStatus << std::endl;
     }
     return 0;
 }
