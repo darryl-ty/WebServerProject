@@ -27,6 +27,7 @@ int main(){
 }
 
 void createNewFile(char* fileName, char* fileContents) {
+    //Create new file name to write to.
     std::string newFileBaseName;
     std::string newFileExtension;
     std::string newFileName;
@@ -41,19 +42,22 @@ void createNewFile(char* fileName, char* fileContents) {
             newFileExtension += fileName[i];
         }
     }
-
     newFileName.append(newFileBaseName + "_clt." + newFileExtension);
+
+    //Create new file with the new name in current directory of executable
     std::ofstream newFile(std::filesystem::current_path().append(newFileName));
 
+    //Pipe stream contents into new file.
     newFile << fileContents;
 }
 
 char* receiveFile(SOCKET client, char* fileName){
-    const int bufferSize = 2048;
-    static char dataBuffer[bufferSize];
-    int dataSize;
+    //Create buffer to hold file information received from server.
+    const int bufferSize = 1024000;
+    static char dataBuffer[bufferSize]; //NOTICE: Made this static so when referenced later on, is not a dangling ptr.
 
-    int result = recv(client, dataBuffer, dataSize, 0);
+    //Receive resulting file information from server.
+    int result = recv(client, dataBuffer, sizeof(dataBuffer), 0);
     if (result == SOCKET_ERROR){
         std::cerr << "The file " << std::string(fileName) << " is not available." << std::endl;
         WSACleanup();
@@ -66,12 +70,14 @@ char* receiveFile(SOCKET client, char* fileName){
 }
 
 char* sendFileName(SOCKET client){
-    const int bufferSize = 64;
-    static char fileName[bufferSize];
+    //Create buffer to store requested filename.
+    const int bufferSize = 128;
+    static char fileName[bufferSize]; //NOTICE: Made this static so when referenced later on, is not a dangling ptr.
 
     std::cout << "Please enter the name of the file you'd like to get:" << std::endl;
     std::cin >> fileName;
 
+    //Send file name to server.
     int result = send(client, fileName, sizeof(fileName), 0);
     if (result == SOCKET_ERROR){
         std::cerr << "Unable to send information to server. Following error: " << WSAGetLastError() << std::endl;
@@ -98,6 +104,7 @@ SOCKET createSocket(const char* serverAddr, int portNum){
         std::clog << "Windows Socket was successfully initialized with status: " << wsaData.szSystemStatus << std::endl;
     }
 
+    //Initialize clientSocket for IPv4, two-way connections, and TCP
     SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (clientSocket == INVALID_SOCKET){
         std::cerr << "Unable to create socket. Following error: " << WSAGetLastError() << std::endl;
@@ -107,11 +114,13 @@ SOCKET createSocket(const char* serverAddr, int portNum){
         std::clog << "Successfully created client-side socket!" << std::endl;
     }
 
+    //Bind client socket to input port with the input address.
     SOCKADDR_IN server;
     server.sin_family = AF_INET;
     server.sin_port = htons(portNum);
     server.sin_addr.s_addr = inet_addr(serverAddr);
 
+    //Connect to the server.
     int result = connect(clientSocket, (SOCKADDR*)&server, sizeof(server));
     if (result == SOCKET_ERROR){
         std::cerr << "Unable to connect to server. Following error: " << WSAGetLastError() << std::endl;

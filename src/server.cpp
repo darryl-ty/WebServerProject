@@ -23,6 +23,7 @@ int main(){
 }
 
 void sendFileInformation(int connection, std::string &fileToSend) {
+    //Read file binary and check for file existence/access.
     std::ifstream file(fileToSend, std::ios::binary);
     std::stringstream ss;
     if (!file.is_open()) {
@@ -30,8 +31,10 @@ void sendFileInformation(int connection, std::string &fileToSend) {
         exit(1);
     }
 
+    //Pipe file information into a stringstream.
     ss << file.rdbuf();
 
+    //Cast stream to c style string to send to client.
     const char* fileInformation = ss.str().c_str();
     int bytesSent = send(connection, fileInformation, strlen(fileInformation), 0);
     if (bytesSent == SOCKET_ERROR) {
@@ -49,9 +52,11 @@ void sendFileInformation(int connection, std::string &fileToSend) {
 }
 
 std::string receiveInformation(int connection){
-    const int bufferSize = 2048;
+    //Create a buffer to hold the file name that was requested from client.
+    const int bufferSize = 128;
     char dataBuffer[bufferSize];
 
+    //Receive information from client for fileName to look for.
     int fileName = recv(connection, dataBuffer, sizeof(dataBuffer), 0);
     if (fileName == SOCKET_ERROR){
         std::clog << "Unable to bind socket. Following error: " << WSAGetLastError() << std::endl;
@@ -60,6 +65,7 @@ std::string receiveInformation(int connection){
         exit(1);
     }
 
+    //Checks for file existence and returns or exits based on value.
     if (std::filesystem::exists(dataBuffer)){
         std::clog << "Client requested file exists! Sending information to client..." << std::endl;
     } else {
@@ -84,6 +90,7 @@ int createSocket(int portNum) {
         std::clog << "Windows Socket was successfully initialized with status: " << wsaData.szSystemStatus << std::endl;
     }
 
+    //Initialize serverSocket for IPv4, two-way connections, and TCP
     SOCKET serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (serverSocket == INVALID_SOCKET){
         std::cerr << "Unable to create socket. Following error: " << WSAGetLastError() << std::endl;
@@ -93,9 +100,10 @@ int createSocket(int portNum) {
         std::clog << "Successfully created server-side socket!" << std::endl;
     }
 
+    //Binds the serverSocket to input port number and listens for connections from any IPAddr.
     SOCKADDR_IN serverAddress {AF_INET,
                                htons(portNum),
-                               INADDR_ANY};
+                               INADDR_ANY}; // NOTICE: NARROWS INFORMATION
     int serverBinding = bind(serverSocket, (SOCKADDR*)&serverAddress, sizeof(serverAddress));
     if (serverBinding == -1){
         std::cerr << "Unable to bind socket. Following error: " << strerror(serverBinding) << std::endl;
@@ -105,6 +113,7 @@ int createSocket(int portNum) {
         std::clog << "Server was successfully bound to port " << portNum << "! Listening for connections" << std::endl;
     }
 
+    //Start server listening on input port number, queue incoming connections, and establish connection to client.
     listen(serverSocket, 1);
     int clientConnection = accept(serverSocket, nullptr, nullptr);
     if (clientConnection == -1){
