@@ -1,7 +1,7 @@
 #include <winsock2.h>
 #include <fstream>
 #include <filesystem>
-#include "client.h"
+#include <iostream>
 
 SOCKET createSocket(const char* serverAddr, int portNum);
 
