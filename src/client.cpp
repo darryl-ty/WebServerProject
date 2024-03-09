@@ -43,6 +43,7 @@ void sendFileName(SOCKET client){
     int result = send(client, fileName, strlen(fileName), 0);
     if (result == SOCKET_ERROR){
         std::cerr << "Unable to send information to server. Following error: " << WSAGetLastError() << std::endl;
+        exit(1);
     } else {
         std::clog << "User requested " << fileName << " from server. Waiting for response..." << std::endl;
     }
@@ -58,7 +59,7 @@ SOCKET createSocket(const char* serverAddr, int portNum){
 
     if (wsaerr != 0) {
         std::cerr << "Windows Socket was unable to initialize." << std::endl;
-        return 1;
+        exit(1);
     } else {
         std::clog << "Windows Socket was successfully initialized with status: " << wsaData.szSystemStatus << std::endl;
     }
@@ -67,19 +68,21 @@ SOCKET createSocket(const char* serverAddr, int portNum){
     if (clientSocket == INVALID_SOCKET){
         std::cerr << "Unable to create socket. Following error: " << WSAGetLastError() << std::endl;
         WSACleanup();
-        return 1;
+        exit(1);
     } else {
         std::clog << "Successfully created client-side socket!" << std::endl;
     }
 
-    SOCKADDR_IN server{AF_INET,
-                           htons(portNum),
-                           static_cast<u_char>(inet_addr(serverAddr))};
+    SOCKADDR_IN server;
+    server.sin_family = AF_INET;
+    server.sin_port = htons(portNum);
+    server.sin_addr.s_addr = inet_addr(serverAddr);
+
     int result = connect(clientSocket, (SOCKADDR*)&server, sizeof(server));
     if (result == SOCKET_ERROR){
         std::cerr << "Unable to connect to server. Following error: " << WSAGetLastError() << std::endl;
         WSACleanup();
-        return 1;
+        exit(1);
     } else {
         std::clog << "Connection to server established!" << std::endl;
     }
