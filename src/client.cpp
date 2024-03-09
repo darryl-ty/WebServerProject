@@ -30,11 +30,9 @@ void createNewFile(char* fileName, char* fileContents) {
     std::string newFileExtension;
     std::string newFileName;
     bool EXTENSION_FLAG = false;
-    size_t extensionPos;
 
     for (size_t i = 0; i < strlen(fileName); i++){
         if (fileName[i] == '.'){
-               extensionPos = i;
                EXTENSION_FLAG = true;
         } else if (!EXTENSION_FLAG) {
             newFileBaseName += fileName[i];
@@ -45,10 +43,13 @@ void createNewFile(char* fileName, char* fileContents) {
 
     newFileName.append(newFileBaseName + "_clt." + newFileExtension);
     std::ofstream newFile(newFileName);
+
+    newFile << fileContents;
 }
 
-char * receiveFile(SOCKET client){
-    char* dataBuffer;
+char* receiveFile(SOCKET client){
+    const int bufferSize = 2048;
+    static char dataBuffer[bufferSize];
     int dataSize;
 
     int result = recv(client, dataBuffer, dataSize, 0);
@@ -62,12 +63,13 @@ char * receiveFile(SOCKET client){
 }
 
 char* sendFileName(SOCKET client){
-    char* fileName;
+    const int bufferSize = 64;
+    static char fileName[bufferSize];
 
     std::cout << "Please enter the name of the file you'd like to get:" << std::endl;
     std::cin >> fileName;
 
-    int result = send(client, fileName, strlen(fileName), 0);
+    int result = send(client, fileName, sizeof(fileName), 0);
     if (result == SOCKET_ERROR){
         std::cerr << "Unable to send information to server. Following error: " << WSAGetLastError() << std::endl;
         exit(1);
