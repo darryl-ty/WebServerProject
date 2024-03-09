@@ -2,7 +2,6 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <cstring>
 #include <filesystem>
 
 
@@ -24,6 +23,28 @@ int main(){
 }
 
 void sendFileInformation(int connection, std::string &fileToSend) {
+    std::ifstream file(fileToSend);
+    std::stringstream ss;
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file: " << fileToSend << std::endl;
+        exit(1);
+    }
+
+    ss << file.rdbuf();
+
+    const char* fileInformation = ss.str().c_str();
+    int bytesSent = send(connection, fileInformation, strlen(fileInformation), 0);
+    if (bytesSent == SOCKET_ERROR) {
+        std::cerr << "Unable to send file information to client. Following error: " << WSAGetLastError() << std::endl;
+        file.close();
+        closesocket(connection);
+        WSACleanup();
+        exit(1);
+    }else {
+        std::clog << "Server successfully sent file information to client!" << std::endl;
+
+        file.close();
+    }
 
 }
 
@@ -40,9 +61,9 @@ std::string receiveInformation(int connection){
     }
 
     if (std::filesystem::exists(dataBuffer)){
-        std::cout << "Client requested file exists! Sending information to client..." << std::endl;
+        std::clog << "Client requested file exists! Sending information to client..." << std::endl;
     } else {
-        std::cout << "The file " << std::string(dataBuffer) << " is not available. Notifying client..." << std::endl;
+        std::clog << "The file " << std::string(dataBuffer) << " is not available. Notifying client..." << std::endl;
     }
 
     return std::string{dataBuffer};
