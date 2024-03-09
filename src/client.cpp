@@ -1,5 +1,6 @@
 #include <winsock2.h>
 #include <fstream>
+#include <filesystem>
 #include "client.h"
 
 SOCKET createSocket(const char* serverAddr, int portNum);
@@ -42,7 +43,7 @@ void createNewFile(char* fileName, char* fileContents) {
     }
 
     newFileName.append(newFileBaseName + "_clt." + newFileExtension);
-    std::ofstream newFile(newFileName);
+    std::ofstream newFile(std::filesystem::current_path().append(newFileName));
 
     newFile << fileContents;
 }
