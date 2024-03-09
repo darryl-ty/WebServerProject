@@ -6,7 +6,7 @@
 SOCKET createSocket(const char* serverAddr, int portNum);
 
 char* sendFileName(SOCKET client);
-char* receiveFile(SOCKET client);
+char* receiveFile(SOCKET client, char* fileName);
 
 void createNewFile(char *fileName, char* fileContents);
 
@@ -16,7 +16,7 @@ int main(){
 
     SOCKET client = createSocket(serverAddr, portNum);
     char* fileName = sendFileName(client);
-    char* fileContents = receiveFile(client);
+    char* fileContents = receiveFile(client, fileName);
     createNewFile(fileName, fileContents);
 
 
@@ -48,14 +48,16 @@ void createNewFile(char* fileName, char* fileContents) {
     newFile << fileContents;
 }
 
-char* receiveFile(SOCKET client){
+char* receiveFile(SOCKET client, char* fileName){
     const int bufferSize = 2048;
     static char dataBuffer[bufferSize];
     int dataSize;
 
     int result = recv(client, dataBuffer, dataSize, 0);
     if (result == SOCKET_ERROR){
-        std::cerr << "Unable to receive information from server. Following error: " << WSAGetLastError() << std::endl;
+        std::cerr << "The file " << std::string(fileName) << " is not available." << std::endl;
+        WSACleanup();
+        exit(1);
     } else {
         std::clog << "User received requested file from server!" << std::endl;
         return dataBuffer;
