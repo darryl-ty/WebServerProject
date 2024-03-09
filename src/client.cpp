@@ -2,16 +2,20 @@
 #include "client.h"
 
 SOCKET createSocket(const char* serverAddr, int portNum);
-void sendFileName(SOCKET client);
+
+char* sendFileName(SOCKET client);
 char* receiveFile(SOCKET client);
+
+void createNewFile(char *fileName, char* fileContents);
 
 int main(){
     const char* serverAddr = "127.0.0.1";
     const int portNum = 2468;
 
     SOCKET client = createSocket(serverAddr, portNum);
-    sendFileName(client);
-    receiveFile(client);
+    char* fileName = sendFileName(client);
+    char* fileContents = receiveFile(client);
+    createNewFile(fileName, fileContents);
 
 
     closesocket(client);
@@ -20,7 +24,11 @@ int main(){
     return 0;
 }
 
-char* receiveFile(SOCKET client){
+void createNewFile(char* fileName, char* fileContents) {
+
+}
+
+char * receiveFile(SOCKET client){
     char* dataBuffer;
     int dataSize;
 
@@ -28,13 +36,13 @@ char* receiveFile(SOCKET client){
     if (result == SOCKET_ERROR){
         std::cerr << "Unable to receive information from server. Following error: " << WSAGetLastError() << std::endl;
     } else {
-        std::clog << "User received the requested file from server!" << std::endl;
+        std::clog << "User received requested file from server!" << std::endl;
         return dataBuffer;
     }
 
 }
 
-void sendFileName(SOCKET client){
+char* sendFileName(SOCKET client){
     char* fileName;
 
     std::cout << "Please enter the name of the file you'd like to get:" << std::endl;
@@ -47,6 +55,8 @@ void sendFileName(SOCKET client){
     } else {
         std::clog << "User requested " << fileName << " from server. Waiting for response..." << std::endl;
     }
+
+    return fileName;
 
 
 }
