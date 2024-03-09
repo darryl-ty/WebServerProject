@@ -30,7 +30,8 @@ void createNewFile(char* fileName, char* fileContents) {
     std::string newFileExtension;
     std::string newFileName;
     bool EXTENSION_FLAG = false;
-    u_int64 extensionPos;
+    size_t extensionPos;
+
     for (size_t i = 0; i < strlen(fileName); i++){
         if (fileName[i] == '.'){
                extensionPos = i;
@@ -41,6 +42,7 @@ void createNewFile(char* fileName, char* fileContents) {
             newFileExtension += fileName[i];
         }
     }
+
     newFileName.append(newFileBaseName + "_clt." + newFileExtension);
     std::ofstream newFile(newFileName);
 }
