@@ -23,7 +23,7 @@ int main(){
 }
 
 void sendFileInformation(int connection, std::string &fileToSend) {
-    std::ifstream file(fileToSend);
+    std::ifstream file(fileToSend, std::ios::binary);
     std::stringstream ss;
     if (!file.is_open()) {
         std::cerr << "Failed to open file: " << fileToSend << std::endl;
@@ -49,12 +49,12 @@ void sendFileInformation(int connection, std::string &fileToSend) {
 }
 
 std::string receiveInformation(int connection){
-    char* dataBuffer;
-
+    const int bufferSize = 2048;
+    char dataBuffer[bufferSize];
 
     int fileName = recv(connection, dataBuffer, sizeof(dataBuffer), 0);
     if (fileName == SOCKET_ERROR){
-        std::cerr << "Unable to bind socket. Following error: " << WSAGetLastError() << std::endl;
+        std::clog << "Unable to bind socket. Following error: " << WSAGetLastError() << std::endl;
         closesocket(connection);
         WSACleanup();
         exit(1);
