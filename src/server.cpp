@@ -64,6 +64,8 @@ std::string receiveInformation(int connection){
         std::clog << "Client requested file exists! Sending information to client..." << std::endl;
     } else {
         std::clog << "The file " << std::string(dataBuffer) << " is not available. Notifying client..." << std::endl;
+        WSACleanup();
+        exit(1);
     }
 
     return std::string{dataBuffer};
